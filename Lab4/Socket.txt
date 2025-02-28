@@ -1,0 +1,10 @@
+. socket.AF_INET specifies that it will use IPv4 addresses.
+. socket.SOCK_STREAM specifies that it will use TCP (Transmission Control Protocol), which is connection-oriented and reliable.
+. The server binds to its own IP address (sta.ifconfig()[0]) and port 80 (HTTP default port).
+. This means it listens for HTTP requests from clients (browsers or other devices).
+. The server is now listening for incoming client connections.
+. 5 means the server can have up to 5 queued connections waiting to be accepted.
+. If the received request contains /?RGB=red, green, or blue, it changes the color of the first NeoPixel (LED).
+. "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" tells the client that the response is a valid HTML page.
+. conn.send(response) sends the HTML content from the web_page() function.
+. conn.close() closes the connection after sending the response.
