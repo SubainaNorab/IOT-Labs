@@ -1,3 +1,16 @@
+Task 2
+
+1: Run the same functionality of the lab work without interrupt & log your observations. Also state, what happened before and after interrupt?
+
+Before removing interrupt: 
+       The button press is detected almost instantly, even if the microcontroller is busy reading sensor data.
+       The OLED display quickly turns off or on when the button is pressed.
+After removing interrupt:
+	The button sometimes does not respond immediately.
+	When the button is pressed, there is a slight delay before the OLED turns off or on.
+	It count multiple button presses as single one.
+
+----------------------------------------------------------------------------------------------------------------------------------
 Task 3
 
 1: What is a debounce issue and why we get rid of it?
