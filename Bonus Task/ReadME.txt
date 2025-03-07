@@ -1,0 +1,1 @@
+In  this task, i have controlled Led (green ,red,blue) from blynk . After that displayed humidity and temperature value from sensor to blynk.
