@@ -1,0 +1,1 @@
+In this lab , we have displayed text from blynk to oled.Then control led using text box.After that controlled led using sliders for different types of colors.
