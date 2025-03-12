@@ -12,7 +12,7 @@ from neopixel import NeoPixel
 # Wi-Fi Setup
 SSID = "Sbain"
 PASSWORD = "cant7301"
-
+#station mode
 sta = network.WLAN(network.STA_IF)
 sta.active(True)
 sta.connect(SSID, PASSWORD)
@@ -28,7 +28,7 @@ if sta.isconnected():
 else:
     print("Failed to connect to WiFi.")
 
-# Access Point Setup (Optional)
+# Access Point Setup 
 ap = network.WLAN(network.AP_IF)
 ap.active(True)
 ap.config(essid="SSS", password="12345678", authmode=network.AUTH_WPA2_PSK)
@@ -41,7 +41,7 @@ oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 pin = machine.Pin(48, machine.Pin.OUT)
 neo = NeoPixel(pin, 1)
 
-# Store last encrypted text
+# Store last encrypted text (for decryption purposes)
 last_encrypted = ""
 
 def set_color(r, g, b):
@@ -68,10 +68,10 @@ def decrypt_text(data):
     decrypted = bytes([b ^ key for b in ubinascii.unhexlify(data)]).decode()
     display_text_on_oled(last_encrypted + " -> " + decrypted)
     return decrypted
-
+# show saved files
 def list_files():
     return "\n".join(os.listdir())
-
+# system oinfo
 def get_system_info():
     total_ram = gc.mem_alloc() + gc.mem_free()
     used_ram = gc.mem_alloc()
@@ -85,7 +85,7 @@ def read_file(filename):
             return file.read()
     except:
         return "<h1>File Not Found</h1>"
-
+# web server run
 def web_server():
     server = socket.socket()
     server.bind(("", 80))
@@ -103,7 +103,7 @@ def web_server():
         elif "GET /index.html" in request:
             response = read_file("index.html")
             content_type = "text/html"
-            
+            # for setting led on esp32
         elif "GET /setRGB" in request:
             try:
                 params = request.split(" ")[1].split("?")[1]
@@ -119,7 +119,7 @@ def web_server():
             except:
                 response = "Invalid Input"
                 content_type = "text/plain"
-
+# display text on oled
         elif "GET /displayText" in request:
             try:
                 params = request.split(" ")[1].split("?")[1]
@@ -130,7 +130,7 @@ def web_server():
             except:
                 response = "Invalid Input"
                 content_type = "text/plain"
-
+# display sensor data 
         elif "GET /sensorData" in request:
             dht_sensor.measure()
             temp = dht_sensor.temperature()
@@ -149,17 +149,18 @@ def web_server():
         elif "GET /system" in request:
             response = get_system_info()
             content_type = "text/plain"
-
+# calling encryption
         elif "POST /encrypt" in request:
             content = request.split("\r\n\r\n")[-1]
             response = encrypt_text(content)
             content_type = "text/plain"
+# calling decryption
 
         elif "POST /decrypt" in request:
             content = request.split("\r\n\r\n")[-1]
             response = decrypt_text(content)
             content_type = "text/plain"
-            
+            # handling developer page background image
         elif "GET /light.jpg" in request:
             try:
                 with open("light.jpg", "rb") as file:
@@ -191,5 +192,5 @@ def web_server():
         conn.close()
         gc.collect()
 
-web_server()
+web_server() #running
 
