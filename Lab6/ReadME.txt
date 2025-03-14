@@ -1,4 +1,4 @@
-Firstly, run microdot using static ip
+Firstly,i run microdot using static ip
 
 Task 2:
 to run that function using microdot we have to go to that page
