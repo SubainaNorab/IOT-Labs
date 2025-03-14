@@ -1,0 +1,1 @@
+Firstly, run microdot using static ip
