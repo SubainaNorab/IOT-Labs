@@ -8,3 +8,7 @@ In this we have add delay of 20 seconds to share data because we are using free 
 ## Task 2
 in this in addition of writing(sending) temperature and humidity data on thingSpeak we will also be adding alert when temperature or humidity is beyond out limit.
 Created React to show alert when temperature is greater than 26 and for this we have used matlab analysis.
+
+
+## Visualization:
+Added visualization using MATLAB visualization. It is now showing correlation between temperature and humidity
