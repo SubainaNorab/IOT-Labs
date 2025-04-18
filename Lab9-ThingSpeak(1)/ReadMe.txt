@@ -12,3 +12,9 @@ Created React to show alert when temperature is greater than 26 and for this we 
 
 ## Visualization:
 Added visualization using MATLAB visualization. It is now showing correlation between temperature and humidity
+
+##public url
+
+https://thingspeak.mathworks.com/apps/matlab_visualizations/617238
+
+we can share matlab visualization to any one by making it public
