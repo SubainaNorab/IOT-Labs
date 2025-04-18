@@ -1,0 +1,2 @@
+In this lab, we have shown data of temperature and humidity on ThingSpeak which is cloud.
+In this we have add delay of 20 seconds to share data because we are using free thingspeak and it can share once in 15 seconds.
