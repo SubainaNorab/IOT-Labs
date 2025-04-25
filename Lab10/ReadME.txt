@@ -8,3 +8,6 @@ Core 1 runs the OLED display loop and keeps showing updated values.
 thread->openmp
 topic-> for communication (who to publish)
 lock->for enforcement synchronization
+
+*** Task 3 ***:
+We are trying to subscribe to ThingSpeak's MQTT broker to receive temperature and humidity data, and displays it on an OLED screen. The issue face here is its not subscribing.
