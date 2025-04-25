@@ -85,6 +85,7 @@ def mqtt_callback(topic, msg):
 
 # ----- MQTT INIT + LOOP -----
 def connect_mqtt():
+
     try:
         client = MQTTClient(client_id=THINGSPEAK_CLIENT_ID,
                             server=THINGSPEAK_MQTT_HOST,
