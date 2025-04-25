@@ -5,6 +5,32 @@ import ujson
 from machine import Pin, SoftI2C
 import ssd1306
 from umqtt.simple import MQTTClient
+import network
+
+#wifi configuration
+
+WIFI_SSID = 'NTU FSD'
+WIFI_PASS = ''
+
+
+print(f"Connecting to WiFi network '{WIFI_SSID}'")
+wifi = network.WLAN(network.STA_IF)
+wifi.active(True)
+wifi.connect(WIFI_SSID, WIFI_PASS)
+
+timeout = 10  # 10 seconds max wait 
+while not wifi.isconnected() and timeout > 0:
+    time.sleep(1)
+    print('WiFi connect retry ...')
+    timeout -= 1
+
+# checking wifi onnected or not
+if wifi.isconnected():
+    print('WiFi Connected! IP:', wifi.ifconfig()[0])
+else:
+    print('Failed to connect to WiFi. Check credentials or network.')
+
+
 
 # Configuration
 THINGSPEAK_MQTT_HOST = "mqtt3.thingspeak.com"
@@ -26,7 +52,7 @@ MQTT_TOPIC = f"channels/{THINGSPEAK_CHANNEL_ID}/publish"
 dht_sensor = dht.DHT11(Pin(DHT_PIN))
 i2c = SoftI2C(scl=Pin(9), sda=Pin(8))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
-
+# reading sensor data
 def read_sensor():
     try:
         dht_sensor.measure()
@@ -36,7 +62,7 @@ def read_sensor():
     except Exception as e:
         print("Sensor read error:", e)
         return None, None
-
+# to thingspeaak
 def send_to_thingspeak_mqtt(client, temp, humidity):
     try:
         payload = f"field1={temp}&field2={humidity}"
