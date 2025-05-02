@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <DHT.h>
-#include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <NTPClient.h>
 
 // WiFi Credentials
 const char* ssid = "Sbain";
@@ -14,49 +14,43 @@ const String FIREBASE_AUTH = "gAazo17Whgd55GZgQQlxqMnMPmpLVdyfeqVGjMls";
 const String FIREBASE_PATH = "/temp_hum.json";
 
 // DHT Sensor
-#define DHTPIN 4       // GPIO4 (change if needed)
-#define DHTTYPE DHT11  // DHT11 or DHT22
+#define DHTPIN 4
+#define DHTTYPE DHT11
 
 // Timing
-const unsigned long SEND_INTERVAL = 10000;  // 10 seconds
-const unsigned long SENSOR_DELAY = 2000;    // 2 seconds between reads
+const unsigned long SEND_INTERVAL = 10000;
+const unsigned long SENSOR_DELAY = 2000;
 
-// ======= Global Objects ======= //
+// Global Objects
 DHT dht(DHTPIN, DHTTYPE);
 unsigned long lastSendTime = 0;
 unsigned long lastReadTime = 0;
 
-// NTP Setup
+// NTP Client setup
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);  // GMT time offset, 60 sec update interval
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 5 * 3600, 60000);  // UTC+5 for Pakistan
 
-// Timezone Offset (adjust based on your timezone)
-const long timeOffset = 5 * 3600;  // For GMT+5, adjust as needed
-
-// ======= Setup ======= //
 void setup() {
   Serial.begin(115200);
   Serial.println("\nESP32-S3 DHT11 Firebase Monitor");
 
   initDHT();
   connectWiFi();
-  timeClient.begin();  // Start NTP client
-  timeClient.setTimeOffset(timeOffset);  // Set timezone offset
-  delay(1000);  // Allow some time for the NTP client to sync with the server
+
+  timeClient.begin();
+  timeClient.update();
 }
 
-// ======= Main Loop ======= //
 void loop() {
-  // Maintain WiFi connection
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
 
-  // Read sensor (with proper timing)
+  timeClient.update();  // keep NTP time updated
+
   if (millis() - lastReadTime >= SENSOR_DELAY) {
     float temp, hum;
     if (readDHT(&temp, &hum)) {
-      // Send to Firebase (with proper timing)
       if (millis() - lastSendTime >= SEND_INTERVAL) {
         sendToFirebase(temp, hum);
         lastSendTime = millis();
@@ -66,11 +60,11 @@ void loop() {
   }
 }
 
-// ======= Sensor Functions ======= //
+// Sensor Functions
 void initDHT() {
   dht.begin();
   Serial.println("DHT sensor initialized");
-  delay(500);  // Short stabilization delay
+  delay(500);
 }
 
 bool readDHT(float* temp, float* humidity) {
@@ -79,33 +73,30 @@ bool readDHT(float* temp, float* humidity) {
 
   if (isnan(*temp) || isnan(*humidity)) {
     Serial.println("DHT read failed! Retrying...");
-    
-    // Attempt sensor recovery
-    digitalWrite(DHTPIN, LOW);  // Reset pin state
+    digitalWrite(DHTPIN, LOW);
     pinMode(DHTPIN, INPUT);
     delay(100);
-    initDHT();  // Reinitialize
-    
+    initDHT();
     return false;
   }
-  
+
   Serial.printf("DHT Read: %.1f°C, %.1f%%\n", *temp, *humidity);
   return true;
 }
 
-// ======= WiFi Functions ======= //
+// WiFi Functions
 void connectWiFi() {
   Serial.print("Connecting to WiFi");
-  WiFi.disconnect(true);  // Clear previous config
+  WiFi.disconnect(true);
   WiFi.begin(ssid, password);
-  
+
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 15) {
     delay(500);
-    Serial.print("...");
+    Serial.print(".");
     attempts++;
   }
-  
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("\nWiFi Connected!");
     Serial.print("IP Address: ");
@@ -115,51 +106,54 @@ void connectWiFi() {
   }
 }
 
-// ======= Firebase Functions ======= //
+// Firebase Upload Function
 void sendToFirebase(float temp, float humidity) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Cannot send - WiFi disconnected");
     return;
   }
 
-  // Update time
-  timeClient.update();
-  String formattedTime = formatTime(timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
-  Serial.println("Formatted Time: " + formattedTime);  // Debug print to check the formatted time
-
   HTTPClient http;
   String url = "https://" + FIREBASE_HOST + FIREBASE_PATH + "?auth=" + FIREBASE_AUTH;
-  
-  // Create JSON payload
-  String jsonPayload = "{\"temperature\":" + String(temp) + 
-                      ",\"humidity\":" + String(humidity) + 
-                      ",\"timestamp\":\"" + formattedTime + "\"}";
+
+  // Get epoch time and convert to structured time
+  time_t rawTime = timeClient.getEpochTime();
+  struct tm* timeinfo = localtime(&rawTime);
+
+  // Format time as 12-hour without leading zero (e.g., 3:05)
+  int hour = timeinfo->tm_hour;
+  int minute = timeinfo->tm_min;
+  String hour12 = String((hour % 12 == 0) ? 12 : hour % 12);
+  if (minute < 10) {
+    hour12 += ":0" + String(minute);
+  } else {
+    hour12 += ":" + String(minute);
+  }
+
+  // Format date as DD-MM-YYYY
+  String dateStr = String(timeinfo->tm_mday) + "-" +
+                   String(timeinfo->tm_mon + 1) + "-" +
+                   String(timeinfo->tm_year + 1900);
+
+  // Build JSON payload
+  String jsonPayload = "{\"temperature\":" + String(temp) +
+                       ",\"humidity\":" + String(humidity) +
+                       ",\"time\":\"" + hour12 +
+                       "\",\"date\":\"" + dateStr + "\"}";
 
   Serial.println("Sending to Firebase...");
   Serial.println(jsonPayload);
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
-  
+
   int httpCode = http.POST(jsonPayload);
-  
+
   if (httpCode == HTTP_CODE_OK) {
     Serial.println("Firebase update successful");
   } else {
     Serial.printf("Firebase error: %d\n", httpCode);
-    if (httpCode == -1) {
-      Serial.println("Check your Firebase URL and authentication");
-    }
   }
   
   http.end();
-}
-
-// ======= Time Formatting Function ======= //
-String formatTime(int hours, int minutes, int seconds) {
-  String period = (hours >= 12) ? "PM" : "AM";  // Set AM/PM
-  if (hours > 12) hours -= 12;  // Convert to 12-hour format
-  if (hours == 0) hours = 12;  // Handle midnight as 12:00
-  String formattedTime = String(hours) + ":" + (minutes < 10 ? "0" : "") + String(minutes) + " " + period;
-  return formattedTime;
 }
