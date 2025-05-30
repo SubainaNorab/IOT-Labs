@@ -106,3 +106,11 @@ y_pred = np.argmax(y_pred_probs, axis=1)
 #saving model
 model.save("new_classify.h5")
 np.savez("normalization.npz", min=X_min, max=X_max)
+# tflite converison
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+# Save TFLite model
+with open("dht_classifier.tflite", "wb") as f:
+    f.write(tflite_model)
+print("✅ Saved dht_classifier.tflite")
