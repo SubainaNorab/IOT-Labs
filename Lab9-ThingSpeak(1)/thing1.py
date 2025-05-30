@@ -1,8 +1,8 @@
-import machine
+import machine # for hardwaee
 import dht
-import urequests
+import urequests # HTTP client for MicroPython
 import time
-import ujson
+import ujson #to convert ot json
 from machine import Pin, SoftI2C
 import ssd1306
 import network
@@ -55,7 +55,7 @@ def read_sensor():
 def send_to_thingspeak(temp, humidity):
     try:
         url = f"{THINGSPEAK_WRITE_URL}?api_key={THINGSPEAK_API_KEY}&field1={temp}&field2={humidity}"
-        response = urequests.get(url)
+        response = urequests.get(url) # using http
         print("ThingSpeak update:", response.text)
         response.close()
         return True

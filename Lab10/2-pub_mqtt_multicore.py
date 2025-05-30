@@ -45,7 +45,7 @@ MQTT_TOPIC = f"channels/{THINGSPEAK_CHANNEL_ID}/publish"
 
 # ==== Global Variables ====
 temp, humidity = 0, 0
-oled_lock = _thread.allocate_lock()
+oled_lock = _thread.allocate_lock() # so single thread wil do it,data sending efficient
 
 # ==== Hardware Init ====
 dht_sensor = dht.DHT11(Pin(DHT_PIN))
@@ -87,7 +87,7 @@ def sensor_task():
             continue
 
         try:
-            payload = f"field1={temp}&field2={humidity}"
+            payload = f"field1={temp}&field2={humidity}" #actual data
             client.publish(MQTT_TOPIC, payload)
             print("MQTT Publish:", payload)
         except Exception as e:
@@ -105,7 +105,7 @@ def sensor_task():
 def oled_task():
     global temp, humidity
     while True:
-        oled_lock.acquire()
+        oled_lock.acquire() #lock access
         oled.fill(0)
         oled.text("IoT Monitor", 0, 0)
         oled.text("Temp: {:.1f}C".format(temp), 0, 16)

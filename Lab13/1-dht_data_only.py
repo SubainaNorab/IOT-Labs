@@ -8,10 +8,10 @@ import time
 INFLUXDB_URL = "http://localhost:8086"  # InfluxDB server URL
 INFLUXDB_TOKEN = "QWmRfWujFXvf2XI4Dw4tFre4UdPq1TvBKLPWmLySW-q2DOP6thGR_gYBa4_oyVX5-weJXmF-mSZdkcPVHH88QQ=="  # Replace with your InfluxDB token
 INFLUXDB_ORG = "Subaina"      # Replace with your InfluxDB organization name
-INFLUXDB_BUCKET = "Lab13_first"  # InfluxDB bucket name
+INFLUXDB_BUCKET = "NEW"  # InfluxDB bucket name
 
 # MQTT setup
-MQTT_BROKER = "10.13.47.140"  # ESP32's MQTT broker address
+MQTT_BROKER = "192.168.96.130"  # ESP32's MQTT broker address
 MQTT_PORT = 1883                # MQTT port
 MQTT_TOPIC_TEMP = "esp32/dht/temp"
 MQTT_TOPIC_HUM = "esp32/dht/hum"

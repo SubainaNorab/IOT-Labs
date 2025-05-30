@@ -2,11 +2,12 @@
 #include <HTTPClient.h>
 #include <DHT.h>
 #include <WiFiUdp.h>
-#include <NTPClient.h>
+// for current time
+#include <NTPClient.h> 
 
 // WiFi Credentials
-const char* ssid = "Sbain";
-const char* password = "cant7301";
+const char* ssid = "NTU FSD";
+const char* password = "";
 
 // Firebase Configuration
 const String FIREBASE_HOST = "lab11-firebase-df992-default-rtdb.firebaseio.com";
@@ -118,7 +119,8 @@ void sendToFirebase(float temp, float humidity) {
 
   // Get epoch time and convert to structured time
   time_t rawTime = timeClient.getEpochTime();
-  struct tm* timeinfo = localtime(&rawTime);
+  // for formatting
+  struct tm* timeinfo = localtime(&rawTime); 
 
   // Format time as 12-hour without leading zero (e.g., 3:05)
   int hour = timeinfo->tm_hour;

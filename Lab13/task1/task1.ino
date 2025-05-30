@@ -7,7 +7,7 @@
 #define DHTTYPE DHT11
 #define WIFI_SSID "NTU FSD"
 #define WIFI_PASSWORD ""
-#define MQTT_SERVER "10.13.47.140"  // Replace with your PC IP
+#define MQTT_SERVER "10.13.46.241"  // Replace with your PC IP
 #define MQTT_PORT 1883
 
 // Objects

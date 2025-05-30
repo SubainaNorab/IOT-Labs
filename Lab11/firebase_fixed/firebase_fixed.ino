@@ -3,8 +3,8 @@
 #include <DHT.h>
 
 // WiFi Credentials
-const char* ssid = "Shaham";
-const char* password = "abcd1234";
+const char* ssid = "NTU FDS";
+const char* password = "";
 
 // Firebase Configuration
 const String FIREBASE_HOST = "lab11-firebase-df992-default-rtdb.firebaseio.com";

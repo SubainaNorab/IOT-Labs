@@ -1,9 +1,9 @@
 import time
 import ssd1306
-import _thread
+import _thread # for mutlithreading
 import machine
 from machine import Pin, SoftI2C
-from umqtt.simple import MQTTClient
+from umqtt.simple import MQTTClient # mqtt
 import network
 
 #wifi configuration
